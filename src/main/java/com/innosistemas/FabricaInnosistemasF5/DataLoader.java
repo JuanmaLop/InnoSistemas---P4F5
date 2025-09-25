@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Connection;
 
-/* Aquí se inserta un usuario a la base de datos*/
+/* Aquí se prueba la conexion con la base de datos ingrsando un usuario*/
 @Component
 public class DataLoader implements CommandLineRunner {
     @Autowired

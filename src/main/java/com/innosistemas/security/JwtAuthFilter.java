@@ -33,7 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			try {
 				username = jwtUtils.getUserNameFromJwtToken(token);
 			} catch (Exception e) {
-				// Token inválido o expirado
+				// Token inválido / expirado
 			}
 		}
 
