@@ -1,7 +1,7 @@
 package com.innosistemas.controller;
 import com.innosistemas.security.JwtUtils;
-import com.innosistemas.entity.JwtResponse;
-import com.innosistemas.entity.LoginRequest;
+import com.innosistemas.dto.JwtResponse;
+import com.innosistemas.dto.LoginRequest;
 import com.innosistemas.entity.Usuario;
 import com.innosistemas.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;

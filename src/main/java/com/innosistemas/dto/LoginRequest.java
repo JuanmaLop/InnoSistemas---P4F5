@@ -1,4 +1,4 @@
-package com.innosistemas.entity;
+package com.innosistemas.dto;
 
 public class LoginRequest {
     private String correo;
