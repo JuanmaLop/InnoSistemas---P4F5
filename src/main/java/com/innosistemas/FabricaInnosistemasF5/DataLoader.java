@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Connection;
 
-/* Aquí se prueba la conexion con la base de datos ingrsando un usuario*/
+/* Aquí se prueba la conexion con la base de datos ingresando un usuario*/
 @Component
 public class DataLoader implements CommandLineRunner {
     @Autowired
@@ -27,14 +27,14 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("DataSource conectado: " + c.getMetaData().getURL() +
                     " - Usuario: " + c.getMetaData().getUserName());
         }
-        String correo = "test@uni.edu";
+        String correo = "testest3@uni.edu";
         if (usuarioRepository.findByCorreo(correo).isEmpty()) {
             Usuario u = new Usuario();
-            u.setNombres("Usuario");
-            u.setApellidos("Prueba");
+            u.setNombres("Estudiante");
+            u.setApellidos("Prueba 3");
             u.setCorreo(correo);
             u.setContrasenia(passwordEncoder.encode("Password123")); // contraseña de prueba
-            u.setRol(1);; // Asignar rol de usuario estándar
+            u.setRol("Estudiante");; // Asignar rol de usuario estudiante
             usuarioRepository.save(u);
             System.out.println("Usuario de prueba creado: " + correo + " / Password123");
         }*/

@@ -6,7 +6,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -20,7 +19,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con el correo: " + correo));
 
         List<GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().toString()));
+                List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol()));
 
         return new org.springframework.security.core.userdetails.User(
                 usuario.getCorreo(),

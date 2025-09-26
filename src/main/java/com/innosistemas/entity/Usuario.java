@@ -21,8 +21,8 @@ public class Usuario {
     @Column(name = "contrasenia", nullable = false)
     private String contrasenia;
 
-    @Column(name = "rol_id", nullable = false)
-    private Integer rol;
+    @Column(name = "rol", nullable = false)
+    private String rol;
 
     @Column(name = "correo", nullable = false, unique = true)
     private String correo;
@@ -59,11 +59,11 @@ public class Usuario {
         this.contrasenia = contrasenia;
     }
 
-    public Integer getRol() {
+    public String getRol() {
         return rol;
     }
 
-    public void setRol(Integer rol) {
+    public void setRol(String rol) {
         this.rol = rol;
     }
 
