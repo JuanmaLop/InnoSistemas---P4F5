@@ -1,6 +1,7 @@
 name: Build and Deploy to EC2
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
 
@@ -9,6 +10,7 @@ permissions:
   contents: read
 
 jobs:
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -38,9 +40,8 @@ jobs:
       - name: Add SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY_B64 }}" | base64 --decode > ~/.ssh/ec2_key.pem
+          aws s3 cp s3://${{ secrets.BUCKET_NAME }}/${{ secrets.KEYFILE_NAME }} ~/.ssh/ec2_key.pem
           chmod 600 ~/.ssh/ec2_key.pem
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy on EC2
         env:
@@ -50,13 +51,13 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -T ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+          ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no -T ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             docker pull $ECR_REGISTRY/$IMAGE_NAME:latest
             docker stop backend_service || true
             docker rm backend_service || true
             docker run -d --restart=unless-stopped -p 80:8080 --name backend_service \
-              -e SPRING_DATASOURCE_URL="$DB_HOST" \
-              -e SPRING_DATASOURCE_USERNAME="$DB_USER" \
-              -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
+              -e SPRING_DATASOURCE_URL=\"$DB_HOST\" \
+              -e SPRING_DATASOURCE_USERNAME=\"$DB_USER\" \
+              -e SPRING_DATASOURCE_PASSWORD=\"$DB_PASSWORD\" \
             ${{ steps.login-ecr.outputs.registry }}/$IMAGE_NAME:latest
-          EOF
+          "
