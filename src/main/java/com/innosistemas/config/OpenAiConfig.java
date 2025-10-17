@@ -14,8 +14,8 @@ public class OpenAiConfig {
     public OpenAPI customOpenAPI() {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
-                .info(new Info().title("InnoSistemas API").version("1.0").description(
-                        "API para la gestión de usuarios y autenticación en la plataforma InnoSistemas."))
+                .info(new Info().title("InnoSistemas F5 API").version("1.0").description(
+                        "API para la Feature 5: Gestión de Documentos y Entregas"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
