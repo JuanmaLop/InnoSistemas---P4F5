@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.Instant;
 
 @Entity
 public class Usuario {
@@ -23,6 +24,13 @@ public class Usuario {
 
     @Column(name = "rol", nullable = false)
     private String rol;
+
+    /**
+     * Marca de tiempo que invalida todos los tokens emitidos antes de este instante.
+     * Se usa para implementar logout/revocación por usuario.
+     */
+    @Column(name = "token_invalid_before")
+    private Instant tokenInvalidBefore;
 
     @Column(name = "correo", nullable = false, unique = true)
     private String correo;
@@ -73,5 +81,13 @@ public class Usuario {
 
     public void setCorreo(String correo) {
         this.correo = correo;
+    }
+
+    public Instant getTokenInvalidBefore() {
+        return tokenInvalidBefore;
+    }
+
+    public void setTokenInvalidBefore(Instant tokenInvalidBefore) {
+        this.tokenInvalidBefore = tokenInvalidBefore;
     }
 }

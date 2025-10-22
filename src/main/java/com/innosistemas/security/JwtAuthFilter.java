@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.innosistemas.repository.UsuarioRepository;
+import com.innosistemas.entity.Usuario;
 import java.io.IOException;
 
 @Component
@@ -31,6 +33,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	 */
 	@Autowired
 	private UserDetailsService userDetailsService;
+
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
 	/**
 	 * Método principal del filtro. Extrae el token JWT del encabezado Authorization,
@@ -62,9 +67,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 			if (jwtUtils.validateJwtToken(token)) {
-				UsernamePasswordAuthenticationToken authToken =
-						new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				SecurityContextHolder.getContext().setAuthentication(authToken);
+				// Comprobar que el token fue emitido después de tokenInvalidBefore (si existe)
+				java.time.Instant issuedAt = jwtUtils.getIssuedAtFromJwtToken(token);
+				Usuario usuario = usuarioRepository.findByCorreo(username).orElse(null);
+				boolean tokenValidoPorFecha = true;
+				if (usuario != null && usuario.getTokenInvalidBefore() != null && issuedAt != null) {
+					tokenValidoPorFecha = issuedAt.isAfter(usuario.getTokenInvalidBefore());
+				}
+
+				if (tokenValidoPorFecha) {
+					UsernamePasswordAuthenticationToken authToken =
+							new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+					SecurityContextHolder.getContext().setAuthentication(authToken);
+				}
 			}
 		}
 

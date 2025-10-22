@@ -63,6 +63,23 @@ public class JwtUtils {
     }
 
     /**
+     * Obtiene la fecha de emisión (issuedAt) del token como Instant.
+     * @param token Token JWT
+     * @return Instant con issuedAt o null si no se puede parsear
+     */
+    public Instant getIssuedAtFromJwtToken(String token) {
+        try {
+            Date issuedAt = Jwts.parser().verifyWith(key).build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getIssuedAt();
+            return issuedAt != null ? issuedAt.toInstant() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * Valida si el token JWT es correcto y no ha expirado.
      * @param authToken Token JWT
      * @return true si el token es válido, false si es inválido o expirado
