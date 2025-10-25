@@ -25,10 +25,6 @@ public class Usuario {
     @Column(name = "rol", nullable = false)
     private String rol;
 
-    /**
-     * Marca de tiempo que invalida todos los tokens emitidos antes de este instante.
-     * Se usa para implementar logout/revocación por usuario.
-     */
     @Column(name = "token_invalid_before")
     private Instant tokenInvalidBefore;
 

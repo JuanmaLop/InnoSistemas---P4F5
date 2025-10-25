@@ -13,8 +13,11 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/usuario")
 public class UsuarioController {
-    @Autowired
     private UsuarioRepository usuarioRepository;
+
+    UsuarioController(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
 
     /**
      * endpoint accesible sólo por estudiantes.

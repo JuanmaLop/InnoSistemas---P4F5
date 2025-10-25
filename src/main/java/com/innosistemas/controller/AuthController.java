@@ -45,10 +45,8 @@ public class AuthController {
     return new JwtResponse(jwt, correo, nombre, apellidos, rol);
     }
 
-    /**
-     * Cierra la sesión del usuario actual invalidando tokens anteriores.
-     * Establece tokenInvalidBefore = now() para el usuario.
-     */
+    // Establece tokenInvalidBefore = now() para el usuario.
+
     @PostMapping("/logout")
     public void logoutCurrentUser(Authentication authentication) {
         if (authentication == null) return;
@@ -58,4 +56,5 @@ public class AuthController {
             usuarioRepository.save(u);
         });
     }
+    
 }
