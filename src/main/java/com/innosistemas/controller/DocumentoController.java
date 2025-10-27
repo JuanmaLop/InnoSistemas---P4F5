@@ -41,12 +41,14 @@ public class DocumentoController {
     @PostMapping(path = "/subirDocumento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadDocumento(@RequestParam("file") MultipartFile file, @RequestParam("titulo") String titulo,
             @RequestParam("proyectoId") Integer proyectoId, Authentication authentication) {
+        // Primero verificamos que el usuario tenga permiso para subir el documento al proyecto
         String correo = authentication.getName();
         Usuario usuario = usuarioRepository.findByCorreo(correo).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
+        
         if (!authorizationService.tieneAccesoAProyecto(usuario.getId(), proyectoId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para subir documentos a este proyecto.");
         } else {
+            // Usuario autorizado, procedemos a subir el documento
             try {
                 Documento docSaved = documentoService.uploadAndSaveDocumento(file, titulo, proyectoId, usuario.getId());
                 return ResponseEntity.status(HttpStatus.CREATED).body(docSaved);
@@ -56,9 +58,31 @@ public class DocumentoController {
         }
     }
 
+    @PostMapping(path = "/{documentoId}/actualizarDocumento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateDocumento(@PathVariable Integer documentoId, @RequestParam("file") MultipartFile file,
+            @RequestParam("nuevoTitulo") String nuevoTitulo, @RequestParam("detallesCambios") String detallesCambios, Authentication authentication) {
+        // Verificamos que el usuario tenga permiso para editar el documento al proyecto
+        Documento documentoAct = documentoRepository.findById(documentoId).orElseThrow(() -> new RuntimeException("Documento no encontrado"));
+        String correo = authentication.getName();
+        Usuario usuario = usuarioRepository.findByCorreo(correo).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        if (!authorizationService.tieneAccesoAProyecto(usuario.getId(), documentoAct.getProyectoId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para editar documentos de este proyecto.");
+        } else {
+            // Usuario autorizado, procedemos a subir el documento
+            try {
+                Documento docUpdated= documentoService.updateDocumento(documentoId, file, nuevoTitulo, usuario.getId(), detallesCambios);
+                return ResponseEntity.ok(docUpdated);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+    }
+    
+
     @GetMapping("/{proyectoId}/documentosPorProyecto")
     public ResponseEntity<?> getDocumentosPorProyecto(@PathVariable Integer proyectoId, Authentication authentication) {
-        // Primero verificamos que el usuario tenga permiso para descargar el documento
+        // Primero verificamos que el usuario tenga permiso para obtener documentos del proyecto
         String correo = authentication.getName();
         Usuario usuario = usuarioRepository.findByCorreo(correo).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
