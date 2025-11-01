@@ -12,6 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * Configuración de seguridad para la aplicación.
@@ -37,23 +40,23 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-			.csrf(csrf -> csrf.disable())
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.authorizeHttpRequests(auth -> auth
-				// Rutas públicas
-				.requestMatchers("/auth/**").permitAll()
-				.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-				// Ejemplo de rutas por rol (ajusta las rutas según tu aplicación):
-				// - Rutas administrativas
-				.requestMatchers("/admin/**").hasRole("ADMIN")
-				// - Rutas para profesores
-				.requestMatchers("/profesor/**").hasAnyRole("PROFESOR", "ADMIN")
-				// - Rutas para estudiantes
-				.requestMatchers("/estudiante/**").hasAnyRole("ESTUDIANTE", "PROFESOR", "ADMIN")
-				// El resto requiere autenticación
-				.anyRequest().authenticated()
-			)
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+				.csrf(csrf -> csrf.disable())
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth
+						// Rutas públicas
+						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+						// Ejemplo de rutas por rol (ajusta las rutas según tu aplicación):
+						// - Rutas administrativas
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+						// - Rutas para profesores
+						.requestMatchers("/profesor/**").hasAnyRole("PROFESOR", "ADMIN")
+						// - Rutas para estudiantes
+						.requestMatchers("/estudiante/**").hasAnyRole("ESTUDIANTE", "PROFESOR", "ADMIN")
+						// El resto requiere autenticación
+						.anyRequest().authenticated())
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
@@ -71,10 +74,32 @@ public class SecurityConfig {
 
 	/**
 	 * Bean para codificar contraseñas usando BCrypt.
+	 * 
 	 * @return PasswordEncoder
 	 */
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	/**
+	 * Configuración CORS para permitir peticiones desde cualquier origen.
+	 * 
+	 * @return CorsConfigurationSource
+	 */
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		// Permitir todos los orígenes
+		configuration.setAllowedOriginPatterns(java.util.Arrays.asList("*"));
+		configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+		configuration.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
+		configuration.setMaxAge(3600L);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 }
