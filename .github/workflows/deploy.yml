@@ -53,6 +53,7 @@ jobs:
           DOCUMENT_HOST: ${{ secrets.DOCUMENT_HOST }}
           DOCUMENT_USER: ${{ secrets.DOCUMENT_USER }}
           DOCUMENT_PASS: ${{ secrets.DOCUMENT_PASS }}
+          DOCUMENT_DB: ${{ secrets.DOCUMENT_DB }}
         run: |
           ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 944401492013.dkr.ecr.us-east-1.amazonaws.com"
           ssh -i ~/.ssh/ec2_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "docker pull $ECR_REGISTRY/$IMAGE_NAME:latest"
@@ -62,6 +63,6 @@ jobs:
           -e SPRING_DATASOURCE_URL=\"$DB_HOST\" \
           -e SPRING_DATASOURCE_USERNAME=\"$DB_USER\" \
           -e SPRING_DATASOURCE_PASSWORD=\"$DB_PASSWORD\" \
-          -e SPRING_DATA_MONGODB_URI=\"mongodb://${DOCUMENT_USER}:${DOCUMENT_PASS}@${DOCUMENT_HOST}:27017/?tls=true&tlsCAFile=global-bundle.pem&retryWrites=false\" \
+          -e SPRING_DATA_MONGODB_URI=\"mongodb://${DOCUMENT_USER}:${DOCUMENT_PASS}@${DOCUMENT_HOST}:27017/${DOCUMENT_DB}?tls=true&tlsCAFile=global-bundle.pem&retryWrites=false\" \
           ${{ steps.login-ecr.outputs.registry }}/$IMAGE_NAME:latest"
           
