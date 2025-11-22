@@ -1,10 +1,11 @@
 package com.innosistemas.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import java.sql.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
@@ -28,6 +29,9 @@ public class Documento {
 
     @Column(name = "fecha_modificacion", nullable = false)
     private Date fechaModificacion;
+
+    @Column(name = "estado", nullable = false, length = 20)
+    private String estado = "Habilitado";
 
     public Integer getId() {
         return id;
@@ -75,5 +79,13 @@ public class Documento {
 
     public void setFechaModificacion(Date fechaModificacion) {
         this.fechaModificacion = fechaModificacion;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 }

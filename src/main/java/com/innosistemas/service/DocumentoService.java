@@ -1,5 +1,10 @@
 package com.innosistemas.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Date;
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -7,12 +12,12 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.InputStream;
-import java.util.List;
-import java.sql.Date;
-import java.io.IOException;
+
+import com.innosistemas.dto.DocumentoResumen;
+import com.innosistemas.entity.AuditoriaDocumento;
 import com.innosistemas.entity.Documento;
 import com.innosistemas.entity.VersionDocumento;
+import com.innosistemas.repository.AuditoriaDocumentoRepository;
 import com.innosistemas.repository.DocumentoRepository;
 import com.innosistemas.repository.VersionDocumentoRepository;
 import com.mongodb.BasicDBObject;
@@ -26,11 +31,15 @@ public class DocumentoService {
     private final GridFsTemplate gridFsTemplate;
     private final DocumentoRepository documentoRepository;
     private final VersionDocumentoRepository versionDocumentoRepository;
+    private final AuditoriaDocumentoRepository auditoriaDocumentoRepository;
 
-    public DocumentoService(GridFsTemplate gridFsTemplate, DocumentoRepository documentoRepository, VersionDocumentoRepository versionDocumentoRepository) {
+    public DocumentoService(GridFsTemplate gridFsTemplate, DocumentoRepository documentoRepository, 
+                           VersionDocumentoRepository versionDocumentoRepository,
+                           AuditoriaDocumentoRepository auditoriaDocumentoRepository) {
         this.gridFsTemplate = gridFsTemplate;
         this.documentoRepository = documentoRepository;
         this.versionDocumentoRepository = versionDocumentoRepository;
+        this.auditoriaDocumentoRepository = auditoriaDocumentoRepository;
     }
 
     // Sube el archivo a GridFS y guarda el documento en postgresql
@@ -103,9 +112,50 @@ public class DocumentoService {
         return documentoRepository.save(documentoAct);
     }
 
-    // Obtiene todos los documentos asociados a un proyecto
+    // Obtiene todos los documentos asociados a un proyecto (solo habilitados)
     public List<Documento> findAllDocumentosByProyectoId(Integer proyectoId) {
-        return documentoRepository.findByProyectoId(proyectoId);
+        return documentoRepository.findByProyectoIdAndEstado(proyectoId, "Habilitado");
+    }
+
+    // Obtiene el resumen de documentos del usuario (con nombres de proyecto y equipo)
+    public List<DocumentoResumen> findResumenByUsuarioId(Integer usuarioId) {
+        return documentoRepository.findResumenByUsuarioId(usuarioId);
+    }
+
+    // Borrado lógico: cambia el estado a "Deshabilitado" y registra en auditoría
+    @Transactional
+    public void deshabilitarDocumento(Integer documentoId, Integer usuarioId) {
+        Documento documento = documentoRepository.findById(documentoId)
+                .orElseThrow(() -> new RuntimeException("Documento no encontrado con ID: " + documentoId));
+        documento.setEstado("Deshabilitado");
+        documentoRepository.save(documento);
+        
+        // Registrar en auditoría
+        AuditoriaDocumento auditoria = new AuditoriaDocumento(
+            documentoId,
+            "DESHABILITADO",
+            usuarioId,
+            "Documento marcado como deshabilitado"
+        );
+        auditoriaDocumentoRepository.save(auditoria);
+    }
+
+    // Restaurar documento: cambia el estado a "Habilitado" y registra en auditoría
+    @Transactional
+    public void habilitarDocumento(Integer documentoId, Integer usuarioId) {
+        Documento documento = documentoRepository.findById(documentoId)
+                .orElseThrow(() -> new RuntimeException("Documento no encontrado con ID: " + documentoId));
+        documento.setEstado("Habilitado");
+        documentoRepository.save(documento);
+        
+        // Registrar en auditoría
+        AuditoriaDocumento auditoria = new AuditoriaDocumento(
+            documentoId,
+            "HABILITADO",
+            usuarioId,
+            "Documento restaurado"
+        );
+        auditoriaDocumentoRepository.save(auditoria);
     }
 
     // Descarga el archivo de GridFS por su ID
