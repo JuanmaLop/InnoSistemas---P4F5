@@ -27,6 +27,9 @@ public class Documento {
     @Column(name = "usuario_id", nullable = false)
     private Integer usuarioId;
 
+    @Column(name = "carpeta_id")
+    private Integer carpetaId; // Puede ser null si está en la raíz del proyecto
+
     @Column(name = "fecha_modificacion", nullable = false)
     private Date fechaModificacion;
 
@@ -71,6 +74,14 @@ public class Documento {
 
     public void setUsuarioId(Integer usuarioId) {
         this.usuarioId = usuarioId;
+    }
+
+    public Integer getCarpetaId() {
+        return carpetaId;
+    }
+
+    public void setCarpetaId(Integer carpetaId) {
+        this.carpetaId = carpetaId;
     }
 
     public Date getFechaModificacion() {

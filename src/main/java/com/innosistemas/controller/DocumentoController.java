@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,6 +44,23 @@ public class DocumentoController {
         this.documentoRepository = documentoRepository;
         this.usuarioRepository = usuarioRepository;
         this.authorizationService = authorizationService;
+    }
+
+    @PatchMapping(path = "/{documentoId}/moverACarpeta")
+    public ResponseEntity<?> moverDocumento(@PathVariable Integer documentoId, @RequestParam("carpetaId") Integer carpetaId, Authentication authentication) {
+        Documento documento = documentoRepository.findById(documentoId).orElseThrow(() -> new RuntimeException("Documento no encontrado"));
+        String correo = authentication.getName();
+        Usuario usuario = usuarioRepository.findByCorreo(correo).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (!authorizationService.tieneAccesoAProyecto(usuario.getId(), documento.getProyectoId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso para mover documentos de este proyecto.");
+        }
+        try {
+            documento.setCarpetaId(carpetaId);
+            Documento guardado = documentoRepository.save(documento);
+            return ResponseEntity.ok(guardado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al mover el documento: " + e.getMessage());
+        }
     }
 
     @PostMapping(path = "/subirDocumento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

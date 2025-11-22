@@ -14,6 +14,9 @@ import com.innosistemas.entity.Documento;
 public interface DocumentoRepository extends JpaRepository<Documento, Integer>{
     List<Documento> findByProyectoIdAndEstado(Integer proyectoId, String estado);
 
+    List<Documento> findByProyectoIdAndCarpetaId(Integer proyectoId, Integer carpetaId);
+    List<Documento> findByProyectoIdAndCarpetaIdIsNull(Integer proyectoId);
+
     /**
      * Devuelve los documentos subidos por un usuario junto con nombres de proyecto y equipo.
      * Usa JPQL con entidades sin relaciones (join por igualdad de ids).

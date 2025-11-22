@@ -1,8 +1,12 @@
 package com.innosistemas.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
-import com.innosistemas.entity.Usuario;
+
 import com.innosistemas.entity.Equipo;
+import com.innosistemas.entity.Usuario;
 import com.innosistemas.entity.UsuarioEquipo;
 import com.innosistemas.entity.UsuarioEquipoId;
 import com.innosistemas.repository.EquipoRepository;
@@ -41,5 +45,14 @@ public class EquipoService {
         }
         return equipoGuardado;
     }
-    
+
+    public List<Equipo> getEquiposPorUsuarioEquipos(List<UsuarioEquipo> usuarioequipos) {
+        List<Equipo> equipos = new ArrayList<>();
+        for (UsuarioEquipo ue : usuarioequipos) {
+            Equipo equipo = equipoRepository.findById(ue.getId().getEquipoId())
+                    .orElseThrow(() -> new RuntimeException("Equipo no encontrado con ID: " + ue.getId().getEquipoId()));
+            equipos.add(equipo);
+        }
+        return equipos;
+    }
 }
