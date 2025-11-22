@@ -112,8 +112,13 @@ public class DocumentoService {
         return documentoRepository.save(documentoAct);
     }
 
-    // Obtiene todos los documentos asociados a un proyecto (solo habilitados)
+    // Obtiene todos los documentos asociados a un proyecto (habilitados y deshabilitados)
     public List<Documento> findAllDocumentosByProyectoId(Integer proyectoId) {
+        return documentoRepository.findByProyectoId(proyectoId);
+    }
+    
+    // Obtiene solo los documentos habilitados de un proyecto
+    public List<Documento> findDocumentosHabilitadosByProyectoId(Integer proyectoId) {
         return documentoRepository.findByProyectoIdAndEstado(proyectoId, "Habilitado");
     }
 

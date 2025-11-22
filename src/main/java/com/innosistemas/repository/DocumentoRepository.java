@@ -13,6 +13,8 @@ import com.innosistemas.entity.Documento;
 @Repository
 public interface DocumentoRepository extends JpaRepository<Documento, Integer>{
     List<Documento> findByProyectoIdAndEstado(Integer proyectoId, String estado);
+    
+    List<Documento> findByProyectoId(Integer proyectoId);
 
     List<Documento> findByProyectoIdAndCarpetaId(Integer proyectoId, Integer carpetaId);
     List<Documento> findByProyectoIdAndCarpetaIdIsNull(Integer proyectoId);
