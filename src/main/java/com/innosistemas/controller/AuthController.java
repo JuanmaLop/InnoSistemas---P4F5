@@ -1,15 +1,19 @@
 package com.innosistemas.controller;
-import com.innosistemas.security.JwtUtils;
-import com.innosistemas.dto.JwtResponse;
-import com.innosistemas.dto.LoginRequest;
-import com.innosistemas.entity.Usuario;
-import com.innosistemas.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.innosistemas.dto.JwtResponse;
+import com.innosistemas.dto.LoginRequest;
+import com.innosistemas.entity.Usuario;
+import com.innosistemas.repository.UsuarioRepository;
+import com.innosistemas.security.JwtUtils;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,7 +44,7 @@ public class AuthController {
     Usuario usuario = usuarioRepository.findByCorreo(correo).orElse(null);
     String nombre = usuario != null ? usuario.getNombres() : "";
     String apellidos = usuario != null ? usuario.getApellidos() : "";
-    String rol = usuario != null && usuario.getRol() != null ? usuario.getRol().toString() : "";
+    String rol = usuario != null && usuario.getRol() != null ? usuario.getRol() : "";
 
     return new JwtResponse(jwt, correo, nombre, apellidos, rol);
     }

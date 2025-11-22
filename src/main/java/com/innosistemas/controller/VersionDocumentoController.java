@@ -34,7 +34,7 @@ public class VersionDocumentoController {
         this.authorizationService = authorizationService;
     }
 
-    @PostMapping("/{documentoId}/versiones")
+    @PostMapping("/{documentoId}/versionesAnteriores")
     public ResponseEntity<?> obtenerVersionesDocumento(@PathVariable Integer documentoId, Authentication authentication) {
         // Primero verificamos que el usuario tenga permiso para ver las versiones del
         // documento
