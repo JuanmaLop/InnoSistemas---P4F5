@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 /**
  * Configuración de seguridad para la aplicación.
@@ -44,8 +45,11 @@ public class SecurityConfig {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
+						// Permitir peticiones OPTIONS (preflight CORS) sin autenticación
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						// Rutas públicas
 						.requestMatchers("/auth/**").permitAll()
+						.requestMatchers("/api/usuario/init-admin").permitAll()
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 						// Ejemplo de rutas por rol (ajusta las rutas según tu aplicación):
 						// - Rutas administrativas
@@ -90,12 +94,34 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		// Permitir todos los orígenes
+
+		// Usar allowedOriginPatterns para permitir "*" con credentials (Spring 5.3+)
 		configuration.setAllowedOriginPatterns(java.util.Arrays.asList("*"));
-		configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-		configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+
+		// Métodos HTTP permitidos
+		configuration.setAllowedMethods(java.util.Arrays.asList(
+				"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+
+		// Headers permitidos - incluir todos los necesarios para CORS
+		configuration.setAllowedHeaders(java.util.Arrays.asList(
+				"Authorization",
+				"Content-Type",
+				"X-Requested-With",
+				"Accept",
+				"Origin",
+				"Access-Control-Request-Method",
+				"Access-Control-Request-Headers"));
+
+		// Headers expuestos al cliente
+		configuration.setExposedHeaders(java.util.Arrays.asList(
+				"Authorization",
+				"Content-Type",
+				"X-Requested-With"));
+
+		// Permitir credenciales (cookies, auth headers)
 		configuration.setAllowCredentials(true);
-		configuration.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
+
+		// Cache de preflight requests (1 hora)
 		configuration.setMaxAge(3600L);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
