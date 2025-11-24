@@ -66,7 +66,7 @@ jobs:
           -e SPRING_DATASOURCE_USERNAME=\"$DB_USER\" \
           -e SPRING_DATASOURCE_PASSWORD=\"$DB_PASSWORD\" \
           -e SPRING_DATA_MONGODB_URI=\"mongodb://${DOCUMENT_USER}:${DOCUMENT_PASS}@${DOCUMENT_HOST}:27017/${DOCUMENT_DB}?retryWrites=false\" \
-          -v $(pwd)/global-bundle.pem:/app/global-bundle.pem \
+          -v /home/ec2-user/global-bundle.pem:/app/global-bundle.pem \
           -e MONGO_CA_PATH=/app/global-bundle.pem \
           -e APP_JWT_SECRET=\"$APP_JWT_SECRET\" \
           -e APP_JWT_EXPIRATION_MS=\"$APP_JWT_EXPIRATION_MS\" \
